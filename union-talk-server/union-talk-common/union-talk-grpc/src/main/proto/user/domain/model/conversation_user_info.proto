@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package user.domain.model;
+
+option java_multiple_files = true;
+option java_package = "com.devin.uniontalk.grpc.user.domain.model";
+
+message ConversationUserInfo {
+  /**
+   * 用户id.
+   */
+  string user_id = 1;
+
+  /**
+   * 用户code.
+   */
+  string code = 2;
+
+  /**
+   * 用户名.
+   */
+  string username = 3;
+
+  /**
+   * 头像地址.
+   */
+  string avatar_url = 4;
+
+  /**
+   * 用户状态.
+   */
+  string status = 5;
+}

@@ -1,0 +1,14 @@
+union:
+  netty:
+    websocket:
+      port: ${UNION_NETTY_WEBSOCKET_PORT:14001}
+      path: ${UNION_NETTY_WEBSOCKET_PATH:/api/v1/ws}
+      boss-threads: ${UNION_NETTY_WEBSOCKET_BOSS_THREADS:1}
+      worker-threads: ${UNION_NETTY_WEBSOCKET_WORKER_THREADS:0}
+      reader-idle-seconds: ${UNION_NETTY_WEBSOCKET_READER_IDLE_SECONDS:30}
+      max-content-length: ${UNION_NETTY_WEBSOCKET_MAX_CONTENT_LENGTH:8192}
+      max-frame-payload-length: ${UNION_NETTY_WEBSOCKET_MAX_FRAME_PAYLOAD_LENGTH:65536}
+      so-backlog: ${UNION_NETTY_WEBSOCKET_SO_BACKLOG:128}
+      so-keep-alive: ${UNION_NETTY_WEBSOCKET_SO_KEEPALIVE:true}
+      connection-ttl-seconds: ${UNION_NETTY_WEBSOCKET_CONNECTION_TTL_SECONDS:90}
+      server-id: ${UNION_NETTY_WEBSOCKET_SERVER_ID:}

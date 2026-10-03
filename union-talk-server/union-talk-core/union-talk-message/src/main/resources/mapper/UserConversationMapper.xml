@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.devin.uniontalk.message.mapper.UserConversationMapper">
+
+    <resultMap id="BaseResultMap" type="com.devin.uniontalk.message.domain.entity.UserConversation">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="conversation_id" property="conversationId" jdbcType="BIGINT"/>
+        <result column="unread_count" property="unreadCount" jdbcType="INTEGER"/>
+        <result column="last_read_msg_id" property="lastReadMsgId" jdbcType="BIGINT"/>
+        <result column="mention_unread_count" property="mentionUnreadCount" jdbcType="INTEGER"/>
+        <result column="last_mention_msg_id" property="lastMentionMsgId" jdbcType="BIGINT"/>
+        <result column="is_pinned" property="isPinned" jdbcType="BOOLEAN"/>
+        <result column="is_muted" property="isMuted" jdbcType="BOOLEAN"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="hidden_at" property="hiddenAt" jdbcType="TIMESTAMP"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+</mapper>

@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package message.domain.response;
+
+import "base/base_response.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "CreateAgentReplyResponseProto";
+option java_package = "com.devin.uniontalk.grpc.message.domain.response";
+
+message CreateAgentReplyResponse {
+  /**
+   * 基础响应.
+   */
+  base.BaseResponse br = 1;
+
+  /**
+   * 正式回复消息id.
+   */
+  string answer_message_id = 2;
+
+  /**
+   * 是否本次创建.
+   */
+  bool created = 3;
+}

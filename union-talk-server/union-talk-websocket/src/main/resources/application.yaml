@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: union-talk-websocket
+  config:
+    import:
+      - classpath:config.yaml
+      - nacos:union-talk-rabbitmq.yaml?group=DEFAULT_GROUP&refreshEnabled=true
+      - nacos:union-talk-websocket.yaml?group=DEFAULT_GROUP&refreshEnabled=true

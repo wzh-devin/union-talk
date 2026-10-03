@@ -1,0 +1,35 @@
+"""知识索引与召回常量。
+
+Author: devin
+GitHub: https://github.com/wzh-devin
+Version: 1.0.0
+Since: 1.0.0
+Created: 2026/07/29 18:46
+"""
+
+MILVUS_SOURCE_TYPE_CODE_MAP = {
+    "MESSAGE_SEGMENT": 1,
+    "RESOURCE_CHUNK": 2,
+}
+MILVUS_CHUNK_KIND_CODE_MAP = {
+    "NOT_APPLICABLE": 0,
+    "CHILD": 1,
+    "TABLE": 2,
+    "PARENT": 3,
+}
+MILVUS_MIME_GROUP_CODE_MAP = {
+    "UNKNOWN": 0,
+    "PDF": 1,
+    "DOCX": 2,
+    "TEXT": 3,
+    "MARKDOWN": 4,
+    "HTML": 5,
+    "JSON": 6,
+}
+PARENT_TARGET_TOKENS = 1600
+CHILD_TARGET_TOKENS = 480
+CHILD_OVERLAP_TOKENS = 80
+MAX_DOCUMENT_BYTES = 50 * 1024 * 1024
+MAX_JSON_DEPTH = 64
+MAX_JSON_SCALAR_COUNT = 100_000
+DEFAULT_RETRIEVAL_SCORE_THRESHOLD = 0.2

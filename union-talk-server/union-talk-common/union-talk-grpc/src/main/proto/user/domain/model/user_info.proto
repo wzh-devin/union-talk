@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package user.domain.model;
+
+option java_multiple_files = true;
+option java_package = "com.devin.uniontalk.grpc.user.domain.model";
+
+message UserInfoProto {
+  /**
+   * 用户id.
+   */
+  string id = 1;
+
+  /**
+   * 注册方式.
+   */
+  string register_way = 2;
+
+  /**
+   * 用户名.
+   */
+  string username = 3;
+
+  /**
+   * 邮箱.
+   */
+  string email = 4;
+
+  /**
+   * 密码.
+   */
+  string password = 5;
+
+  /**
+   * 头像.
+   */
+  string avatar_url = 6;
+
+  /**
+   * 状态.
+   */
+  string status = 7;
+
+  /**
+   * 最后登录时间.
+   */
+  string last_login_at = 8;
+
+  /**
+   * 个性签名.
+   */
+  string bio = 9;
+
+  /**
+   * 是否需要好友验证.
+   */
+  bool need_friend_verify = 10;
+
+  /**
+   * 创建时间.
+   */
+  string created_at = 11;
+
+  /**
+   * 更新时间.
+   */
+  string updated_at = 12;
+}

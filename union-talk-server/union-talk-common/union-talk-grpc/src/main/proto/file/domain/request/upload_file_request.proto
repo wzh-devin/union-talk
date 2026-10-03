@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package file.domain.request;
+
+option java_multiple_files = true;
+option java_outer_classname = "UploadFileRequestProto";
+option java_package = "com.devin.uniontalk.grpc.file.domain.request";
+
+message UploadFileRequest {
+  /**
+   * 文件字节.
+   */
+  bytes file = 1;
+
+  /**
+   * 对象Key
+   */
+  string storageKey = 2;
+}

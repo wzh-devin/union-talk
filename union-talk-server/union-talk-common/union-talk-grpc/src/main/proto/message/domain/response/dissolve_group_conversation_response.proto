@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package message.domain.response;
+
+import "base/base_response.proto";
+
+option java_multiple_files = true;
+option java_package = "com.devin.uniontalk.grpc.message.domain.response";
+
+message DissolveGroupConversationResponse {
+  /**
+   * 基础响应.
+   */
+  base.BaseResponse br = 1;
+}

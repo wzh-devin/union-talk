@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package message.domain.request;
+
+option java_multiple_files = true;
+option java_package = "com.devin.uniontalk.grpc.message.domain.request";
+
+message GetConversationAssetContextRequest {
+  /**
+   * 会话id.
+   */
+  string conversation_id = 1;
+
+  /**
+   * 操作用户id.
+   */
+  string operator_user_id = 2;
+}

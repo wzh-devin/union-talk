@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package file.domain.request;
+
+option java_multiple_files = true;
+option java_outer_classname = "GetAgentResourceContentRequestProto";
+option java_package = "com.devin.uniontalk.grpc.file.domain.request";
+
+message GetAgentResourceContentRequest {
+  string asset_id = 1;
+  int32 resource_version = 2;
+}

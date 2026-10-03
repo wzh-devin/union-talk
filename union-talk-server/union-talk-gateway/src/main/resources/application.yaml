@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: union-talk-gateway
+  config:
+    import:
+      - classpath:config.yaml
+      - nacos:union-talk-gateway.yaml?group=DEFAULT_GROUP&refreshEnabled=true
+server:
+  port: 13000

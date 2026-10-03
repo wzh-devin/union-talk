@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package file.domain.response;
+
+import "base/base_response.proto";
+import "file/domain/model/asset_file_info.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "BatchGetAssetFileInfoResponseProto";
+option java_package = "com.devin.uniontalk.grpc.file.domain.response";
+
+message BatchGetAssetFileInfoResponse {
+  /**
+   * 基础响应.
+   */
+  base.BaseResponse br = 1;
+
+  /**
+   * 资产文件信息列表.
+   */
+  repeated file.domain.model.AssetFileInfo asset_file_info = 2;
+}

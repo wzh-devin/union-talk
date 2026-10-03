@@ -1,0 +1,15 @@
+union:
+  crypto:
+    secret-key: ${UNION_CRYPTO_SECRET_KEY}
+  postgresql:
+    host: ${UNION_POSTGRESQL_HOST:localhost}
+    port: ${UNION_POSTGRESQL_PORT:5432}
+    username: ${UNION_POSTGRESQL_USERNAME:postgres}
+    password: ${UNION_POSTGRESQL_PASSWORD:postgres}
+    database: ${UNION_POSTGRESQL_DATABASE:union_talk}
+    schema: ${UNION_POSTGRESQL_SCHEMA:public}
+  redis:
+    host: ${UNION_REDIS_HOST:localhost}
+    port: ${UNION_REDIS_PORT:6379}
+    password: ${UNION_REDIS_PASSWORD:}
+    database: ${UNION_REDIS_DATABASE:0}

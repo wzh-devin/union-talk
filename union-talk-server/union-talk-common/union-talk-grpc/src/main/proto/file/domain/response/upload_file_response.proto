@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package file.domain.response;
+
+import "base/base_response.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "UploadFileResponseProto";
+option java_package = "com.devin.uniontalk.grpc.file.domain.request";
+
+message UploadFileResponse {
+  /**
+   * 基础响应.
+   */
+  base.BaseResponse br = 1;
+
+  /**
+   * 文件地址.
+   */
+  string fileUrl = 2;
+}

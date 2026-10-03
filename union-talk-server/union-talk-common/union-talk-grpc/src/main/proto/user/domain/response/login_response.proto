@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package user.domain.response;
+
+import "base/base_response.proto";
+import "user/domain/model/user_info.proto";
+
+option java_multiple_files = true;
+option java_package = "com.devin.uniontalk.grpc.user.domain.response";
+
+message LoginResponse {
+  /**
+   * 基础响应.
+   */
+  base.BaseResponse br = 1;
+
+  /**
+   * 用户信息.
+   */
+  user.domain.model.UserInfoProto user_info = 2;
+}

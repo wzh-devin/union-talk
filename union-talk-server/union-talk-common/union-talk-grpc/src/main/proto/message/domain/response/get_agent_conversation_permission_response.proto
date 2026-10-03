@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package message.domain.response;
+
+import "base/base_response.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "GetAgentConversationPermissionResponseProto";
+option java_package = "com.devin.uniontalk.grpc.message.domain.response";
+
+message GetAgentConversationPermissionResponse {
+  /**
+   * 基础响应.
+   */
+  base.BaseResponse br = 1;
+
+  /**
+   * 是否为当前有效会话成员.
+   */
+  bool member = 2;
+
+  /**
+   * 当前会话角色.
+   */
+  string role = 3;
+
+  /**
+   * 会话类型.
+   */
+  string conversation_type = 4;
+
+  /**
+   * 群聊id，私聊时为空.
+   */
+  string group_id = 5;
+}

@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: union-talk-auth
+  config:
+    import:
+      - classpath:config.yaml
+      - nacos:union-talk-auth.yaml?group=DEFAULT_GROUP&refreshEnabled=true

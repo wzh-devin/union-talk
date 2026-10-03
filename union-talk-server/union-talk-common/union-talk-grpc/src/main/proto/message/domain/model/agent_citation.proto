@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package message.domain.model;
+
+option java_multiple_files = true;
+option java_outer_classname = "AgentCitationProto";
+option java_package = "com.devin.uniontalk.grpc.message.domain.model";
+
+message AgentCitation {
+  /**
+   * 引用标识.
+   */
+  string citation_key = 1;
+
+  /**
+   * 来源类型.
+   */
+  string source_type = 2;
+
+  /**
+   * 消息id.
+   */
+  string message_id = 3;
+
+  /**
+   * 资产文件id.
+   */
+  string asset_file_id = 4;
+
+  /**
+   * 资源版本.
+   */
+  int32 resource_version = 5;
+
+  /**
+   * 资源块id.
+   */
+  string chunk_id = 6;
+
+  /**
+   * 起始页码.
+   */
+  int32 page_from = 7;
+
+  /**
+   * 结束页码.
+   */
+  int32 page_to = 8;
+
+  /**
+   * 标题路径.
+   */
+  string heading_path = 9;
+}

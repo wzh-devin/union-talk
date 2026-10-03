@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package file.service;
+
+import "file/domain/request/upload_file_request.proto";
+import "file/domain/request/batch_get_asset_file_info_request.proto";
+import "file/domain/response/upload_file_response.proto";
+import "file/domain/response/batch_get_asset_file_info_response.proto";
+import "file/domain/request/get_agent_resource_content_request.proto";
+import "file/domain/response/get_agent_resource_content_response.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "FileGrpcServiceProto";
+option java_package = "com.devin.uniontalk.grpc.file.service";
+
+service FileGrpcService {
+  /**
+   * 上传文件.
+   */
+  rpc uploadFile(file.domain.request.UploadFileRequest)
+      returns (file.domain.response.UploadFileResponse);
+
+  /**
+   * 批量查询资产文件信息.
+   */
+  rpc batchGetAssetFileInfo(file.domain.request.BatchGetAssetFileInfoRequest)
+      returns (file.domain.response.BatchGetAssetFileInfoResponse);
+
+  /**
+   * 查询Agent索引资源快照和临时下载地址.
+   */
+  rpc getAgentResourceContent(file.domain.request.GetAgentResourceContentRequest)
+      returns (file.domain.response.GetAgentResourceContentResponse);
+}

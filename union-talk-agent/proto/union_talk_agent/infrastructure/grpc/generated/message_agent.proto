@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package message.service;
+
+message AgentCitation {
+  string citation_key = 1;
+  string source_type = 2;
+  string message_id = 3;
+  string asset_file_id = 4;
+  int32 resource_version = 5;
+  string chunk_id = 6;
+  int32 page_from = 7;
+  int32 page_to = 8;
+  string heading_path = 9;
+}
+
+message CreateAgentReplyRequest {
+  string run_id = 1;
+  string conversation_id = 2;
+  string trigger_message_id = 3;
+  string agent_id = 4;
+  string model_id = 5;
+  string content = 6;
+  repeated AgentCitation citations = 7;
+  string idempotency_key = 8;
+  string reply_to_user_id = 9;
+}
+
+message BaseResponse {
+  bool success = 1;
+  int32 code = 2;
+  string message = 3;
+}
+
+message CreateAgentReplyResponse {
+  BaseResponse br = 1;
+  string answer_message_id = 2;
+  bool created = 3;
+}
+
+message GetAgentConversationContextRequest {
+  string conversation_id = 1;
+  string trigger_message_id = 2;
+  int32 recent_message_limit = 3;
+}
+
+message ConversationMessage {
+  string message_id = 1;
+  string sender_type = 2;
+  string sender_display_name = 3;
+  string content = 4;
+  int64 created_at_ms = 5;
+}
+
+message GetAgentConversationContextResponse {
+  BaseResponse br = 1;
+  string conversation_id = 2;
+  string trigger_message_id = 3;
+  string question = 4;
+  repeated ConversationMessage recent_messages = 5;
+  repeated string receiver_user_ids = 6;
+  string quoted_message_id = 7;
+  repeated string referenced_resource_ids = 8;
+  repeated string referenced_asset_file_ids = 9;
+}
+
+message GetAgentConversationPermissionRequest {
+  string conversation_id = 1;
+  string user_id = 2;
+}
+
+message GetAgentConversationPermissionResponse {
+  BaseResponse br = 1;
+  bool member = 2;
+  string role = 3;
+  string conversation_type = 4;
+  string group_id = 5;
+}
+
+service MessageGrpcService {
+  rpc createAgentReply(CreateAgentReplyRequest)
+      returns (CreateAgentReplyResponse);
+
+  rpc getAgentConversationContext(GetAgentConversationContextRequest)
+      returns (GetAgentConversationContextResponse);
+
+  rpc getAgentConversationPermission(GetAgentConversationPermissionRequest)
+      returns (GetAgentConversationPermissionResponse);
+}

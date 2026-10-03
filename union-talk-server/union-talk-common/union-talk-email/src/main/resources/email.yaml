@@ -1,0 +1,9 @@
+union:
+  email:
+    host: ${UNION_EMAIL_HOST:smtp.qq.com}
+    port: ${UNION_EMAIL_PORT:465}
+    username: ${UNION_EMAIL_USERNAME:}
+    password: ${UNION_EMAIL_PASSWORD:}
+    from: ${UNION_EMAIL_FROM:}
+    protocol: ${UNION_EMAIL_PROTOCOL:smtps}
+    code-expire-seconds: ${UNION_EMAIL_CODE_EXPIRE:60}

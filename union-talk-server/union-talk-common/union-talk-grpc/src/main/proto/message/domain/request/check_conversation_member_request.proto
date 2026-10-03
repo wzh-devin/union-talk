@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package message.domain.request;
+
+option java_multiple_files = true;
+option java_outer_classname = "CheckConversationMemberRequestProto";
+option java_package = "com.devin.uniontalk.grpc.message.domain.request";
+
+message CheckConversationMemberRequest {
+  /**
+   * 会话id.
+   */
+  string conversation_id = 1;
+
+  /**
+   * 用户id.
+   */
+  string user_id = 2;
+}

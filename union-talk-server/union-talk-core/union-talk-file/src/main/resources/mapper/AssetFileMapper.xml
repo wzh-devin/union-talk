@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.devin.uniontalk.file.mapper.AssetFileMapper">
+
+    <resultMap id="BaseResultMap" type="com.devin.uniontalk.file.domain.entity.AssetFile">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="conversation_id" property="conversationId" jdbcType="BIGINT"/>
+        <result column="folder_id" property="folderId" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="file_ext" property="fileExt" jdbcType="VARCHAR"/>
+        <result column="file_type" property="fileType" jdbcType="VARCHAR"/>
+        <result column="file_size" property="fileSize" jdbcType="BIGINT"/>
+        <result column="storage_type" property="storageType" jdbcType="VARCHAR"/>
+        <result column="storage_key" property="storageKey" jdbcType="VARCHAR"/>
+        <result column="bucket_name" property="bucketName" jdbcType="VARCHAR"/>
+        <result column="mime_type" property="mimeType" jdbcType="VARCHAR"/>
+        <result column="sha256" property="sha256" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="metadata_json" property="metadataJson" jdbcType="VARCHAR"/>
+        <result column="etag" property="etag" jdbcType="VARCHAR"/>
+        <result column="deleted_at" property="deletedAt" jdbcType="TIMESTAMP"/>
+        <result column="created_by" property="createdBy" jdbcType="BIGINT"/>
+        <result column="updated_by" property="updatedBy" jdbcType="BIGINT"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <select id="selectDeletedWithoutOutboxList" resultMap="BaseResultMap">
+        SELECT asset_file.*
+        FROM ut_asset_file asset_file
+        WHERE asset_file.status = #{deletedStatus}
+          AND NOT EXISTS (
+            SELECT 1
+            FROM ut_asset_outbox asset_outbox
+            WHERE asset_outbox.asset_file_id = asset_file.id
+              AND asset_outbox.resource_version = asset_file.resource_version
+              AND asset_outbox.event_type = #{deletedEventType}
+        )
+        ORDER BY asset_file.deleted_at ASC, asset_file.id ASC
+        LIMIT #{batchSize}
+    </select>
+
+</mapper>

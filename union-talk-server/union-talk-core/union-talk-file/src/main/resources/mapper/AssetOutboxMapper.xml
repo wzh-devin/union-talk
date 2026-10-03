@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.devin.uniontalk.file.mapper.AssetOutboxMapper">
+    <resultMap id="BaseResultMap" type="com.devin.uniontalk.file.domain.entity.AssetOutbox">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="event_id" property="eventId" jdbcType="VARCHAR"/>
+        <result column="asset_file_id" property="assetFileId" jdbcType="BIGINT"/>
+        <result column="resource_version" property="resourceVersion" jdbcType="INTEGER"/>
+        <result column="event_type" property="eventType" jdbcType="VARCHAR"/>
+        <result column="payload_json" property="payloadJson" jdbcType="OTHER"
+                typeHandler="com.devin.uniontalk.datasource.handler.JsonbStringTypeHandler"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="retry_count" property="retryCount" jdbcType="INTEGER"/>
+        <result column="next_retry_at" property="nextRetryAt" jdbcType="TIMESTAMP"/>
+        <result column="published_at" property="publishedAt" jdbcType="TIMESTAMP"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <select id="lockEvent" resultType="java.lang.Integer">
+        SELECT 1 FROM pg_advisory_xact_lock(hashtextextended(CONCAT('asset-outbox:', #{eventId}), 0))
+    </select>
+
+    <select id="claimPublishableList" resultMap="BaseResultMap">
+        WITH candidate AS (
+            SELECT ctid
+            FROM ut_asset_outbox
+            WHERE (
+                status IN (#{pendingStatus}, #{failedStatus})
+                AND (next_retry_at IS NULL OR next_retry_at &lt;= NOW())
+            ) OR (
+                status = #{publishingStatus}
+                AND updated_at &lt;= #{staleBefore}
+            )
+            ORDER BY created_at, id
+            LIMIT #{batchSize}
+            FOR UPDATE SKIP LOCKED
+        )
+        UPDATE ut_asset_outbox outbox
+        SET status = #{publishingStatus}, updated_at = NOW()
+        FROM candidate
+        WHERE outbox.ctid = candidate.ctid
+        RETURNING outbox.*
+    </select>
+
+    <update id="markPublished">
+        UPDATE ut_asset_outbox
+        SET status = #{publishedStatus}, published_at = #{publishedAt},
+            next_retry_at = NULL, updated_at = #{publishedAt}
+        WHERE id = #{id} AND status = #{publishingStatus}
+    </update>
+
+    <update id="markFailed">
+        UPDATE ut_asset_outbox
+        SET status = #{outbox.status}, retry_count = #{outbox.retryCount},
+            next_retry_at = #{outbox.nextRetryAt}, updated_at = #{outbox.updatedAt}
+        WHERE id = #{outbox.id} AND status = #{publishingStatus}
+    </update>
+</mapper>

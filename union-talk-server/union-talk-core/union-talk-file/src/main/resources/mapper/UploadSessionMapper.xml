@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.devin.uniontalk.file.mapper.UploadSessionMapper">
+
+    <resultMap id="BaseResultMap" type="com.devin.uniontalk.file.domain.entity.UploadSession">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="upload_token" property="uploadToken" jdbcType="VARCHAR"/>
+        <result column="conversation_id" property="conversationId" jdbcType="BIGINT"/>
+        <result column="folder_id" property="folderId" jdbcType="BIGINT"/>
+        <result column="asset_id" property="assetId" jdbcType="BIGINT"/>
+        <result column="file_name" property="fileName" jdbcType="VARCHAR"/>
+        <result column="file_ext" property="fileExt" jdbcType="VARCHAR"/>
+        <result column="mime_type" property="mimeType" jdbcType="VARCHAR"/>
+        <result column="file_size" property="fileSize" jdbcType="BIGINT"/>
+        <result column="file_sha256" property="fileSha256" jdbcType="VARCHAR"/>
+        <result column="chunk_size" property="chunkSize" jdbcType="BIGINT"/>
+        <result column="chunk_count" property="chunkCount" jdbcType="INTEGER"/>
+        <result column="uploaded_chunk_count" property="uploadedChunkCount" jdbcType="INTEGER"/>
+        <result column="bucket_name" property="bucketName" jdbcType="VARCHAR"/>
+        <result column="temp_storage_key" property="tempStorageKey" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="failure_reason" property="failureReason" jdbcType="VARCHAR"/>
+        <result column="paused_at" property="pausedAt" jdbcType="TIMESTAMP"/>
+        <result column="canceled_at" property="canceledAt" jdbcType="TIMESTAMP"/>
+        <result column="completed_at" property="completedAt" jdbcType="TIMESTAMP"/>
+        <result column="created_by" property="createdBy" jdbcType="BIGINT"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+</mapper>

@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package user.domain.response;
+
+import "base/base_response.proto";
+
+option java_multiple_files = true;
+option java_package = "com.devin.uniontalk.grpc.user.domain.response";
+
+message GetGroupAssetMemberContextResponse {
+  /**
+   * 基础响应.
+   */
+  base.BaseResponse br = 1;
+
+  /**
+   * 是否为有效在群成员.
+   */
+  bool active_member = 2;
+
+  /**
+   * 群成员角色.
+   */
+  string role = 3;
+
+  /**
+   * 当前用户名.
+   */
+  string username = 4;
+}

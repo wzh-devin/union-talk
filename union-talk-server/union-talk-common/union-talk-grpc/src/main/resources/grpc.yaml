@@ -1,0 +1,3 @@
+grpc:
+  server:
+    port: ${UNION_TALK_USER_GRPC_PORT:19003}

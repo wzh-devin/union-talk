@@ -1,0 +1,28 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyright/
+
+# Virtual environments
+.venv
+
+# Local configuration and IDE
+.env
+.idea/
+.DS_Store
+
+# Runtime files
+*.log
+
+### AGENTS.md ###
+AGENTS.md

@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package user.domain.request;
+
+option java_multiple_files = true;
+option java_package = "com.devin.uniontalk.grpc.user.domain.request";
+
+message LoginRequest {
+  /**
+   * 登录账号（用户名或邮箱）.
+   */
+  string account = 1;
+
+  /**
+   * 密码.
+   */
+  string password = 2;
+
+  /**
+   * IP地址.
+   */
+  string ip_address = 3;
+
+  /**
+   * User-Agent.
+   */
+  string user_agent = 4;
+
+  /**
+   * 设备类型.
+   */
+  string device_type = 5;
+
+  /**
+   * 设备名称.
+   */
+  string device_name = 6;
+}

@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package message.domain.request;
+
+option java_multiple_files = true;
+option java_outer_classname = "GetAgentConversationContextRequestProto";
+option java_package = "com.devin.uniontalk.grpc.message.domain.request";
+
+message GetAgentConversationContextRequest {
+  /**
+   * 会话id.
+   */
+  string conversation_id = 1;
+
+  /**
+   * 触发消息id.
+   */
+  string trigger_message_id = 2;
+
+  /**
+   * 最近消息数量上限.
+   */
+  int32 recent_message_limit = 3;
+}

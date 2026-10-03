@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package message.domain.response;
+
+import "base/base_response.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "CheckConversationMemberResponseProto";
+option java_package = "com.devin.uniontalk.grpc.message.domain.response";
+
+message CheckConversationMemberResponse {
+  /**
+   * 基础响应.
+   */
+  base.BaseResponse br = 1;
+
+  /**
+   * 是否属于会话.
+   */
+  bool exists = 2;
+}

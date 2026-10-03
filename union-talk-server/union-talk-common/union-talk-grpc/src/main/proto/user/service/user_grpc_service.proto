@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package user.service;
+
+import "user/domain/request/check_user_exist_request.proto";
+import "user/domain/request/conversation_target_info_request.proto";
+import "user/domain/request/login_request.proto";
+import "user/domain/request/register_request.proto";
+import "user/domain/request/get_group_asset_member_context_request.proto";
+import "user/domain/response/check_user_exist_response.proto";
+import "user/domain/response/conversation_target_info_response.proto";
+import "user/domain/response/login_response.proto";
+import "user/domain/response/register_response.proto";
+import "user/domain/response/get_group_asset_member_context_response.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "UserGrpcServiceProto";
+option java_package = "com.devin.uniontalk.grpc.user.service";
+
+service UserGrpcService {
+  /**
+   * 检查用户是否存在.
+   */
+  rpc checkUserExist(user.domain.request.CheckUserExistRequest) returns (user.domain.response.CheckUserExistResponse);
+
+  /**
+   * 注册.
+   */
+  rpc register(user.domain.request.RegisterRequest) returns (user.domain.response.RegisterResponse);
+
+  /**
+   * 登录.
+   */
+  rpc login(user.domain.request.LoginRequest) returns (user.domain.response.LoginResponse);
+
+  /**
+   * 查询会话目标信息.
+   */
+  rpc getConversationTargetInfo(user.domain.request.ConversationTargetInfoRequest)
+      returns (user.domain.response.ConversationTargetInfoResponse);
+
+  /**
+   * 查询群成员资产上下文.
+   */
+  rpc getGroupAssetMemberContext(user.domain.request.GetGroupAssetMemberContextRequest)
+      returns (user.domain.response.GetGroupAssetMemberContextResponse);
+}

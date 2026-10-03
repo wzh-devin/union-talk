@@ -1,0 +1,106 @@
+name: union-talk
+
+x-union-talk-service: &union-talk-service
+  env_file:
+    - .env
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  networks:
+    - union-talk
+  restart: unless-stopped
+
+services:
+  # 外部依赖：Nacos。Gateway 通过 Nacos 读取路由配置并发现后端业务服务。
+  union-talk-gateway:
+    <<: *union-talk-service
+    image: ${UNION_TALK_IMAGE_PREFIX:-union-talk}/union-talk-gateway:${UNION_TALK_IMAGE_TAG:-local}
+    build:
+      context: ./union-talk-gateway
+      dockerfile: Dockerfile
+      args:
+        UNION_TALK_VERSION: ${UNION_TALK_VERSION:-1.0.0-SNAPSHOT}
+    labels:
+      union-talk.dependencies.external: "nacos"
+      union-talk.dependencies.internal: "union-talk-auth,union-talk-user,union-talk-message,union-talk-websocket"
+    environment:
+      SERVER_PORT: ${UNION_TALK_GATEWAY_HTTP_PORT:-13000}
+    ports:
+      - "${UNION_TALK_GATEWAY_HTTP_PORT:-13000}:${UNION_TALK_GATEWAY_HTTP_PORT:-13000}"
+
+  # 外部依赖：Nacos、Redis、SMTP。内部依赖：通过 gRPC 调用 user 服务。
+  union-talk-auth:
+    <<: *union-talk-service
+    image: ${UNION_TALK_IMAGE_PREFIX:-union-talk}/union-talk-auth:${UNION_TALK_IMAGE_TAG:-local}
+    build:
+      context: ./union-talk-auth
+      dockerfile: Dockerfile
+      args:
+        UNION_TALK_VERSION: ${UNION_TALK_VERSION:-1.0.0-SNAPSHOT}
+    labels:
+      union-talk.dependencies.external: "nacos,redis,smtp"
+      union-talk.dependencies.internal: "union-talk-user"
+    environment:
+      SERVER_PORT: ${UNION_TALK_AUTH_HTTP_PORT:-13001}
+    ports:
+      - "${UNION_TALK_AUTH_HTTP_PORT:-13001}:${UNION_TALK_AUTH_HTTP_PORT:-13001}"
+
+  # 外部依赖：Nacos、PostgreSQL、Redis、RabbitMQ、Seata。内部依赖：通过 gRPC 调用 message 服务。
+  union-talk-user:
+    <<: *union-talk-service
+    image: ${UNION_TALK_IMAGE_PREFIX:-union-talk}/union-talk-user:${UNION_TALK_IMAGE_TAG:-local}
+    build:
+      context: ./union-talk-core/union-talk-user
+      dockerfile: Dockerfile
+      args:
+        UNION_TALK_VERSION: ${UNION_TALK_VERSION:-1.0.0-SNAPSHOT}
+    labels:
+      union-talk.dependencies.external: "nacos,postgresql,redis,rabbitmq,seata"
+      union-talk.dependencies.internal: "union-talk-message"
+    environment:
+      SERVER_PORT: ${UNION_TALK_USER_HTTP_PORT:-13003}
+      UNION_TALK_USER_GRPC_PORT: ${UNION_TALK_USER_GRPC_PORT:-19003}
+    ports:
+      - "${UNION_TALK_USER_HTTP_PORT:-13003}:${UNION_TALK_USER_HTTP_PORT:-13003}"
+      - "${UNION_TALK_USER_GRPC_PORT:-19003}:${UNION_TALK_USER_GRPC_PORT:-19003}"
+
+  # 外部依赖：Nacos、PostgreSQL、Redis、RabbitMQ、Seata。内部依赖：通过 gRPC 调用 user 服务。
+  union-talk-message:
+    <<: *union-talk-service
+    image: ${UNION_TALK_IMAGE_PREFIX:-union-talk}/union-talk-message:${UNION_TALK_IMAGE_TAG:-local}
+    build:
+      context: ./union-talk-core/union-talk-message
+      dockerfile: Dockerfile
+      args:
+        UNION_TALK_VERSION: ${UNION_TALK_VERSION:-1.0.0-SNAPSHOT}
+    labels:
+      union-talk.dependencies.external: "nacos,postgresql,redis,rabbitmq,seata"
+      union-talk.dependencies.internal: "union-talk-user"
+    environment:
+      SERVER_PORT: ${UNION_TALK_MESSAGE_HTTP_PORT:-13005}
+      UNION_TALK_MESSAGE_GRPC_PORT: ${UNION_TALK_MESSAGE_GRPC_PORT:-19005}
+    ports:
+      - "${UNION_TALK_MESSAGE_HTTP_PORT:-13005}:${UNION_TALK_MESSAGE_HTTP_PORT:-13005}"
+      - "${UNION_TALK_MESSAGE_GRPC_PORT:-19005}:${UNION_TALK_MESSAGE_GRPC_PORT:-19005}"
+
+  # 外部依赖：Nacos、Redis、RabbitMQ。WebSocket Netty 端口由 UNION_NETTY_WEBSOCKET_PORT 暴露。
+  union-talk-websocket:
+    <<: *union-talk-service
+    image: ${UNION_TALK_IMAGE_PREFIX:-union-talk}/union-talk-websocket:${UNION_TALK_IMAGE_TAG:-local}
+    build:
+      context: ./union-talk-websocket
+      dockerfile: Dockerfile
+      args:
+        UNION_TALK_VERSION: ${UNION_TALK_VERSION:-1.0.0-SNAPSHOT}
+    labels:
+      union-talk.dependencies.external: "nacos,redis,rabbitmq"
+      union-talk.dependencies.internal: ""
+    environment:
+      SERVER_PORT: ${UNION_TALK_WEBSOCKET_HTTP_PORT:-13004}
+      UNION_NETTY_WEBSOCKET_PORT: ${UNION_NETTY_WEBSOCKET_PORT:-14001}
+    ports:
+      - "${UNION_TALK_WEBSOCKET_HTTP_PORT:-13004}:${UNION_TALK_WEBSOCKET_HTTP_PORT:-13004}"
+      - "${UNION_NETTY_WEBSOCKET_PORT:-14001}:${UNION_NETTY_WEBSOCKET_PORT:-14001}"
+
+networks:
+  union-talk:
+    driver: bridge

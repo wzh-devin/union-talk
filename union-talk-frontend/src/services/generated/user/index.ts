@@ -1,0 +1,6 @@
+export * from './friend-group/friend-group'
+export * from './friend-request/friend-request'
+export * from './group/group'
+export * from './group-member/group-member'
+export * from './user/user'
+export * from './user-relation/user-relation'

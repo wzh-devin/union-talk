@@ -1,0 +1,9 @@
+{
+  "dependencies": [
+    "."
+  ],
+  "graphs": {
+    "answer": "./src/union_talk_agent/agent_run/graph/answer_graph.py:create_development_graph"
+  },
+  "env": ".env"
+}

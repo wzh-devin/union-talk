@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package file.domain.request;
+
+option java_multiple_files = true;
+option java_outer_classname = "BatchGetAssetFileInfoRequestProto";
+option java_package = "com.devin.uniontalk.grpc.file.domain.request";
+
+message BatchGetAssetFileInfoRequest {
+  /**
+   * 资产文件id列表.
+   */
+  repeated string asset_id = 1;
+}

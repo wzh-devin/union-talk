@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package user.domain.model;
+
+option java_multiple_files = true;
+option java_package = "com.devin.uniontalk.grpc.user.domain.model";
+
+message ConversationGroupInfo {
+  /**
+   * 群聊id.
+   */
+  string group_id = 1;
+
+  /**
+   * 群聊名称.
+   */
+  string name = 2;
+
+  /**
+   * 群聊头像.
+   */
+  string avatar_url = 3;
+
+  /**
+   * 群聊描述.
+   */
+  string description = 4;
+
+  /**
+   * 群主id.
+   */
+  string owner_id = 5;
+
+  /**
+   * 当前成员数.
+   */
+  int64 member_count = 6;
+
+  /**
+   * 群聊状态.
+   */
+  string status = 7;
+}

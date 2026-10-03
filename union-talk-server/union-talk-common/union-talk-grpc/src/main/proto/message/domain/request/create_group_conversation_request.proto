@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package message.domain.request;
+
+option java_multiple_files = true;
+option java_package = "com.devin.uniontalk.grpc.message.domain.request";
+
+message CreateGroupConversationRequest {
+  /**
+   * 群聊id.
+   */
+  string group_id = 1;
+
+  /**
+   * 群成员id.
+   */
+  repeated string member_id = 2;
+}

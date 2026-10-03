@@ -1,0 +1,16 @@
+spring:
+  config:
+    import:
+      - nacos:union-talk-common.yaml?group=DEFAULT_GROUP&refreshEnabled=true
+  cloud:
+    nacos:
+      server-addr: ${UNION_NACOS_HOST:127.0.0.1}:${UNION_NACOS_PORT:8848}
+      username: ${UNION_NACOS_USERNAME:nacos}
+      password: ${UNION_NACOS_PASSWORD:nacos}
+      discovery:
+        namespace: ${UNION_NACOS_NAMESPACE:public}
+        group: ${UNION_NACOS_GROUP:DEFAULT_GROUP}
+      config:
+        namespace: ${UNION_NACOS_NAMESPACE:public}
+        group: ${UNION_NACOS_GROUP:DEFAULT_GROUP}
+        file-extension: yaml

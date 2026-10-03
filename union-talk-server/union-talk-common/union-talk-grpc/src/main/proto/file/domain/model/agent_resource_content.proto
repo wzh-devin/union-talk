@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package file.domain.model;
+
+option java_multiple_files = true;
+option java_outer_classname = "AgentResourceContentProto";
+option java_package = "com.devin.uniontalk.grpc.file.domain.model";
+
+message AgentResourceContent {
+  string asset_id = 1;
+  string conversation_id = 2;
+  int32 resource_version = 3;
+  string file_name = 4;
+  string mime_type = 5;
+  string sha256 = 6;
+  string etag = 7;
+  string folder_id = 8;
+  string path_text = 9;
+  string download_url = 10;
+}

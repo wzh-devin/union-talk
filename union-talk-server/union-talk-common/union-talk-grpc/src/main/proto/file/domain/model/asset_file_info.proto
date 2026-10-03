@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package file.domain.model;
+
+option java_multiple_files = true;
+option java_outer_classname = "AssetFileInfoProto";
+option java_package = "com.devin.uniontalk.grpc.file.domain.model";
+
+message AssetFileInfo {
+  /**
+   * 资产文件id.
+   */
+  string asset_id = 1;
+
+  /**
+   * 会话id.
+   */
+  string conversation_id = 2;
+
+  /**
+   * 文件名称.
+   */
+  string name = 3;
+
+  /**
+   * 文件扩展名.
+   */
+  string file_ext = 4;
+
+  /**
+   * 文件类型.
+   */
+  string file_type = 5;
+
+  /**
+   * 文件大小.
+   */
+  string file_size = 6;
+
+  /**
+   * MIME类型.
+   */
+  string mime_type = 7;
+}

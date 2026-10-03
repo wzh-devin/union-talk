@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package message.service;
+
+import "message/domain/request/create_private_conversation_request.proto";
+import "message/domain/request/create_group_conversation_request.proto";
+import "message/domain/request/dissolve_group_conversation_request.proto";
+import "message/domain/request/check_conversation_member_request.proto";
+import "message/domain/request/get_conversation_asset_context_request.proto";
+import "message/domain/response/create_private_conversation_response.proto";
+import "message/domain/response/create_group_conversation_response.proto";
+import "message/domain/response/dissolve_group_conversation_response.proto";
+import "message/domain/response/check_conversation_member_response.proto";
+import "message/domain/response/get_conversation_asset_context_response.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "ConversationGrpcServiceProto";
+option java_package = "com.devin.uniontalk.grpc.message.service";
+
+service ConversationGrpcService {
+  /**
+   * 创建私聊会话.
+   */
+  rpc createPrivateConversation(message.domain.request.CreatePrivateConversationRequest)
+      returns (message.domain.response.CreatePrivateConversationResponse);
+
+  /**
+   * 创建群聊会话.
+   */
+  rpc createGroupConversation(message.domain.request.CreateGroupConversationRequest)
+      returns (message.domain.response.CreateGroupConversationResponse);
+
+  /**
+   * 解散群聊关联会话.
+   */
+  rpc dissolveGroupConversation(message.domain.request.DissolveGroupConversationRequest)
+      returns (message.domain.response.DissolveGroupConversationResponse);
+
+  /**
+   * 校验用户是否属于会话.
+   */
+  rpc checkConversationMember(message.domain.request.CheckConversationMemberRequest)
+      returns (message.domain.response.CheckConversationMemberResponse);
+
+  /**
+   * 查询会话资产上下文.
+   */
+  rpc getConversationAssetContext(message.domain.request.GetConversationAssetContextRequest)
+      returns (message.domain.response.GetConversationAssetContextResponse);
+}

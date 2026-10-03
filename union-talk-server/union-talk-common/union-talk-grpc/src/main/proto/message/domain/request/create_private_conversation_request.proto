@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package message.domain.request;
+
+option java_multiple_files = true;
+option java_package = "com.devin.uniontalk.grpc.message.domain.request";
+
+message CreatePrivateConversationRequest {
+  /**
+   * 申请用户id.
+   */
+  string from_user_id = 1;
+
+  /**
+   * 接受用户id.
+   */
+  string to_user_id = 2;
+
+  /**
+   * 好友申请id.
+   */
+  string friend_request_id = 3;
+}

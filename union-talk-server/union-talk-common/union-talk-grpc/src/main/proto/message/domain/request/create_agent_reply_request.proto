@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package message.domain.request;
+
+import "message/domain/model/agent_citation.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "CreateAgentReplyRequestProto";
+option java_package = "com.devin.uniontalk.grpc.message.domain.request";
+
+message CreateAgentReplyRequest {
+  /**
+   * Agent运行id.
+   */
+  string run_id = 1;
+
+  /**
+   * 会话id.
+   */
+  string conversation_id = 2;
+
+  /**
+   * 触发消息id.
+   */
+  string trigger_message_id = 3;
+
+  /**
+   * 稳定Agent定义id.
+   */
+  string agent_id = 4;
+
+  /**
+   * 模型标识.
+   */
+  string model_id = 5;
+
+  /**
+   * 回复内容.
+   */
+  string content = 6;
+
+  /**
+   * 引用信息列表.
+   */
+  repeated message.domain.model.AgentCitation citations = 7;
+
+  /**
+   * 幂等键.
+   */
+  string idempotency_key = 8;
+
+  /**
+   * 回复目标用户id.
+   */
+  string reply_to_user_id = 9;
+}

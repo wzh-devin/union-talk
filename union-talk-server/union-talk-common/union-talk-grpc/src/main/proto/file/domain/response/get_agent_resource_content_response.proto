@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package file.domain.response;
+
+import "base/base_response.proto";
+import "file/domain/model/agent_resource_content.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "GetAgentResourceContentResponseProto";
+option java_package = "com.devin.uniontalk.grpc.file.domain.response";
+
+message GetAgentResourceContentResponse {
+  base.BaseResponse br = 1;
+  file.domain.model.AgentResourceContent resource = 2;
+}
