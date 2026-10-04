@@ -1,4 +1,4 @@
-FROM registry.cn-hangzhou.aliyuncs.com/wzh-pull/eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 
 ARG UNION_TALK_VERSION=1.0.0-SNAPSHOT
 

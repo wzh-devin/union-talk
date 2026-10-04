@@ -1,0 +1,12 @@
+seata:
+  application-id: ${spring.application.name}
+  tx-service-group: default_tx_group
+  config:
+    type: file
+  registry:
+    type: file
+  service:
+    vgroup-mapping:
+      default_tx_group: default
+    grouplist:
+      default: ${UNION_SEATA_HOST}:${UNION_SEATA_PORT:8091}

@@ -1,0 +1,31 @@
+server:
+  port: ${SERVER_PORT:13006}
+  servlet:
+    context-path: /api/v1
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: ${UNION_FILE_MAX_FILE_SIZE:5MB}
+      max-request-size: ${UNION_FILE_MAX_REQUEST_SIZE:25MB}
+
+union:
+  storage:
+    storage-type: ${UNION_STORAGE_TYPE:MINIO}
+    endpoint: ${MINIO_ENDPOINT}
+    export-url: ${MINIO_EXPORT_URL}
+    access-key: ${MINIO_ACCESS_KEY}
+    secret-key: ${MINIO_SECRET_KEY}
+    bucket-name: ${MINIO_BUCKET_NAME:union-talk}
+
+grpc:
+  server:
+    port: ${UNION_TALK_FILE_GRPC_PORT:19006}
+    max-inbound-message-size: ${UNION_TALK_FILE_GRPC_MAX_INBOUND_MESSAGE_SIZE:25MB}
+  client:
+    union-talk-message:
+      address: ${UNION_TALK_MESSAGE_GRPC_ADDRESS:discovery:///union-talk-message}
+      negotiation-type: plaintext
+    union-talk-user:
+      address: ${UNION_TALK_USER_GRPC_ADDRESS:discovery:///union-talk-user}
+      negotiation-type: plaintext

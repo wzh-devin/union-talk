@@ -1,0 +1,75 @@
+union:
+  postgresql:
+    host: ${UNION_POSTGRESQL_HOST}
+    port: ${UNION_POSTGRESQL_PORT:5432}
+    username: ${UNION_POSTGRESQL_USERNAME}
+    password: ${UNION_POSTGRESQL_PASSWORD}
+    database: ${UNION_POSTGRESQL_DATABASE:union_talk}
+    schema: ${UNION_POSTGRESQL_SCHEMA:public}
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${UNION_POSTGRESQL_HOST}:${UNION_POSTGRESQL_PORT:5432}/${UNION_POSTGRESQL_DATABASE:union_talk}?currentSchema=${UNION_POSTGRESQL_SCHEMA:public}
+    username: ${UNION_POSTGRESQL_USERNAME}
+    password: ${UNION_POSTGRESQL_PASSWORD}
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      initial-size: 5
+      min-idle: 10
+      max-active: 100
+      max-wait: 6000
+      time-between-eviction-runs-millis: 2000
+      min-evictable-idle-time-millis: 600000
+      max-evictable-idle-time-millis: 900000
+      validation-query: SELECT 1
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      keep-alive: true
+      phy-max-use-count: 1000
+      remove-abandoned: true
+      remove-abandoned-timeout: 1800
+      log-abandoned: true
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      web-stat-filter:
+        enabled: true
+        url-pattern: "/*"
+        exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*"
+        session-stat-enable: true
+        session-stat-max-count: 1000
+        profile-enable: true
+        principal-session-name: USER_SESSION
+        principal-cookie-name: USER_COOKIE
+      stat-view-servlet:
+        enabled: ${UNION_DRUID_MONITOR_ENABLED:false}
+        url-pattern: "/druid/*"
+        login-username: ${UNION_DRUID_MONITOR_USERNAME:admin}
+        login-password: ${UNION_DRUID_MONITOR_PASSWORD:change-me}
+        reset-enable: false
+        allow: ""
+        deny: ""
+      filters: stat,slf4j
+      filter:
+        stat:
+          enabled: true
+          db-type: postgresql
+          log-slow-sql: true
+          slow-sql-millis: 3000
+          merge-sql: true
+        slf4j:
+          enabled: true
+          statement-log-enabled: false
+          statement-executable-sql-log-enable: true
+  flyway:
+    validate-on-migrate: false
+    clean-disabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:flyway
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl

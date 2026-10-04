@@ -1,0 +1,11 @@
+spring:
+  rabbitmq:
+    host: ${UNION_RABBITMQ_HOST}
+    port: ${UNION_RABBITMQ_PORT:5672}
+    username: ${UNION_RABBITMQ_USERNAME}
+    password: ${UNION_RABBITMQ_PASSWORD}
+    virtual-host: ${UNION_RABBITMQ_VIRTUAL_HOST:/union_talk}
+    listener:
+      simple:
+        acknowledge-mode: auto
+        default-requeue-rejected: false

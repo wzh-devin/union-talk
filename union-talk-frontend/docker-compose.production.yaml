@@ -1,0 +1,16 @@
+name: union-talk-frontend
+
+services:
+  union-talk-frontend:
+    image: ${UNION_TALK_FRONTEND_IMAGE:?UNION_TALK_FRONTEND_IMAGE is required}:${UNION_TALK_FRONTEND_TAG:?UNION_TALK_FRONTEND_TAG is required}
+    pull_policy: always
+    container_name: union-talk-frontend
+    restart: unless-stopped
+    init: true
+    environment:
+      GATEWAY_UPSTREAM: ${GATEWAY_UPSTREAM:-http://host.docker.internal:13000}
+      WEBSOCKET_UPSTREAM: ${WEBSOCKET_UPSTREAM:-http://host.docker.internal:14001}
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports:
+      - "${UNION_TALK_FRONTEND_PORT:-80}:80"

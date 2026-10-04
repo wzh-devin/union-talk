@@ -1,0 +1,39 @@
+server:
+  port: ${SERVER_PORT:13000}
+  servlet:
+    context-path: /api/v1
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: union-talk-auth
+              uri: lb://union-talk-auth
+              predicates:
+                - Path=/auth/**
+            - id: union-talk-user
+              uri: lb://union-talk-user
+              predicates:
+                - Path=/user/**
+              filters:
+                - RewritePath=/user/?(?<remaining>.*), /$\{remaining}
+            - id: union-talk-message
+              uri: lb://union-talk-message
+              predicates:
+                - Path=/message/**
+              filters:
+                - RewritePath=/message/?(?<remaining>.*), /$\{remaining}
+            - id: union-talk-file
+              uri: lb://union-talk-file
+              predicates:
+                - Path=/file/**
+              filters:
+                - RewritePath=/file/?(?<remaining>.*), /$\{remaining}
+            - id: union-talk-agent
+              uri: lb://union-talk-agent
+              predicates:
+                - Path=/agent/**
+              filters:
+                - RewritePath=/agent/?(?<remaining>.*), /$\{remaining}

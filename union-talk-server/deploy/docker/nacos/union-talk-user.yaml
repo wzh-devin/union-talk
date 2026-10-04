@@ -1,0 +1,15 @@
+server:
+  port: ${SERVER_PORT:13003}
+  servlet:
+    context-path: /api/v1
+
+grpc:
+  server:
+    port: ${UNION_TALK_USER_GRPC_PORT:19003}
+  client:
+    union-talk-message:
+      address: ${UNION_TALK_MESSAGE_GRPC_ADDRESS:discovery:///union-talk-message}
+      negotiation-type: plaintext
+    union-talk-file:
+      address: ${UNION_TALK_FILE_GRPC_ADDRESS:discovery:///union-talk-file}
+      negotiation-type: plaintext

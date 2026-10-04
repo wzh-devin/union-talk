@@ -1,0 +1,478 @@
+name: Release production
+
+on:
+  push:
+    tags:
+      - "v*"
+      - "frontend-v*"
+      - "gateway-v*"
+      - "auth-v*"
+      - "user-v*"
+      - "message-v*"
+      - "file-v*"
+      - "websocket-v*"
+      - "agent-v*"
+
+concurrency:
+  group: union-talk-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  PLATFORMS: linux/amd64,linux/arm64
+
+jobs:
+  prepare:
+    name: Resolve release scope
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.release.outputs.image_tag }}
+      services: ${{ steps.release.outputs.services }}
+      services_csv: ${{ steps.release.outputs.services_csv }}
+      needs_java: ${{ steps.release.outputs.needs_java }}
+      image_owner: ${{ steps.release.outputs.image_owner }}
+    steps:
+      - name: Resolve tag and services
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tag="${GITHUB_REF_NAME}"
+          version_tag="$tag"
+
+          case "$tag" in
+            v*)
+              services_json='["user","message","file","auth","websocket","agent","gateway","frontend"]'
+              services_csv='user message file auth websocket agent gateway frontend'
+              ;;
+            frontend-v*)
+              version_tag="${tag#frontend-}"
+              services_json='["frontend"]'
+              services_csv='frontend'
+              ;;
+            gateway-v*)
+              version_tag="${tag#gateway-}"
+              services_json='["gateway"]'
+              services_csv='gateway'
+              ;;
+            auth-v*)
+              version_tag="${tag#auth-}"
+              services_json='["auth"]'
+              services_csv='auth'
+              ;;
+            user-v*)
+              version_tag="${tag#user-}"
+              services_json='["user"]'
+              services_csv='user'
+              ;;
+            message-v*)
+              version_tag="${tag#message-}"
+              services_json='["message"]'
+              services_csv='message'
+              ;;
+            file-v*)
+              version_tag="${tag#file-}"
+              services_json='["file"]'
+              services_csv='file'
+              ;;
+            websocket-v*)
+              version_tag="${tag#websocket-}"
+              services_json='["websocket"]'
+              services_csv='websocket'
+              ;;
+            agent-v*)
+              version_tag="${tag#agent-}"
+              services_json='["agent"]'
+              services_csv='agent'
+              ;;
+            *)
+              echo "Unsupported release tag: $tag" >&2
+              exit 1
+              ;;
+          esac
+
+          if [[ ! "$version_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Release tag must contain a semantic version, got: $tag" >&2
+            exit 1
+          fi
+
+          needs_java=false
+          if [[ " $services_csv " == *" gateway "* ||
+                " $services_csv " == *" auth "* ||
+                " $services_csv " == *" user "* ||
+                " $services_csv " == *" message "* ||
+                " $services_csv " == *" file "* ||
+                " $services_csv " == *" websocket "* ]]; then
+            needs_java=true
+          fi
+
+          echo "image_tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "services=$services_json" >> "$GITHUB_OUTPUT"
+          echo "services_csv=$services_csv" >> "$GITHUB_OUTPUT"
+          echo "needs_java=$needs_java" >> "$GITHUB_OUTPUT"
+          image_owner="$(printf '%s' "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')"
+          echo "image_owner=$image_owner" >> "$GITHUB_OUTPUT"
+
+  build_java:
+    name: Package Java services
+    needs: prepare
+    if: needs.prepare.outputs.needs_java == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Package Java applications
+        working-directory: union-talk-server
+        run: mvn -B -ntp -DskipTests package
+
+      - name: Upload application jars
+        uses: actions/upload-artifact@v4
+        with:
+          name: union-talk-java-targets
+          path: union-talk-server/**/target/*.jar
+          if-no-files-found: error
+          retention-days: 7
+
+  build_push_java:
+    name: Build ${{ matrix.service }} image
+    needs: [prepare, build_java]
+    if: needs.prepare.outputs.needs_java == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: gateway
+            image: union-talk-gateway
+            context: union-talk-server/union-talk-gateway
+            dockerfile: union-talk-server/union-talk-gateway/Dockerfile
+          - service: auth
+            image: union-talk-auth
+            context: union-talk-server/union-talk-auth
+            dockerfile: union-talk-server/union-talk-auth/Dockerfile
+          - service: user
+            image: union-talk-user
+            context: union-talk-server/union-talk-core/union-talk-user
+            dockerfile: union-talk-server/union-talk-core/union-talk-user/Dockerfile
+          - service: message
+            image: union-talk-message
+            context: union-talk-server/union-talk-core/union-talk-message
+            dockerfile: union-talk-server/union-talk-core/union-talk-message/Dockerfile
+          - service: file
+            image: union-talk-file
+            context: union-talk-server/union-talk-core/union-talk-file
+            dockerfile: union-talk-server/union-talk-core/union-talk-file/Dockerfile
+          - service: websocket
+            image: union-talk-websocket
+            context: union-talk-server/union-talk-websocket
+            dockerfile: union-talk-server/union-talk-websocket/Dockerfile
+    steps:
+      - name: Checkout
+        if: contains(fromJSON(needs.prepare.outputs.services), matrix.service)
+        uses: actions/checkout@v4
+
+      - name: Download Java application jars
+        if: contains(fromJSON(needs.prepare.outputs.services), matrix.service)
+        uses: actions/download-artifact@v4
+        with:
+          name: union-talk-java-targets
+          path: union-talk-server
+
+      - name: Set up QEMU
+        if: contains(fromJSON(needs.prepare.outputs.services), matrix.service)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        if: contains(fromJSON(needs.prepare.outputs.services), matrix.service)
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: contains(fromJSON(needs.prepare.outputs.services), matrix.service)
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push multi-platform image
+        if: contains(fromJSON(needs.prepare.outputs.services), matrix.service)
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          platforms: ${{ env.PLATFORMS }}
+          push: true
+          build-args: |
+            UNION_TALK_VERSION=1.0.0-SNAPSHOT
+          tags: |
+            ${{ env.REGISTRY }}/${{ needs.prepare.outputs.image_owner }}/union-talk/${{ matrix.image }}:${{ needs.prepare.outputs.image_tag }}
+            ${{ env.REGISTRY }}/${{ needs.prepare.outputs.image_owner }}/union-talk/${{ matrix.image }}:latest
+            ${{ env.REGISTRY }}/${{ needs.prepare.outputs.image_owner }}/union-talk/${{ matrix.image }}:sha-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ needs.prepare.outputs.image_tag }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
+
+  build_push_other:
+    name: Build ${{ matrix.service }} image
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: frontend
+            image: union-talk-frontend
+            context: union-talk-frontend
+            dockerfile: union-talk-frontend/Dockerfile
+          - service: agent
+            image: union-talk-agent
+            context: union-talk-agent
+            dockerfile: union-talk-agent/Dockerfile
+    steps:
+      - name: Checkout
+        if: contains(fromJSON(needs.prepare.outputs.services), matrix.service)
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        if: contains(fromJSON(needs.prepare.outputs.services), matrix.service)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        if: contains(fromJSON(needs.prepare.outputs.services), matrix.service)
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: contains(fromJSON(needs.prepare.outputs.services), matrix.service)
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push multi-platform image
+        if: contains(fromJSON(needs.prepare.outputs.services), matrix.service)
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          platforms: ${{ env.PLATFORMS }}
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ needs.prepare.outputs.image_owner }}/union-talk/${{ matrix.image }}:${{ needs.prepare.outputs.image_tag }}
+            ${{ env.REGISTRY }}/${{ needs.prepare.outputs.image_owner }}/union-talk/${{ matrix.image }}:latest
+            ${{ env.REGISTRY }}/${{ needs.prepare.outputs.image_owner }}/union-talk/${{ matrix.image }}:sha-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ needs.prepare.outputs.image_tag }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
+
+  verify_images:
+    name: Verify published image platforms
+    needs: [prepare, build_push_java, build_push_other]
+    if: >-
+      always() &&
+      needs.prepare.result == 'success' &&
+      (needs.build_push_java.result == 'success' || needs.build_push_java.result == 'skipped') &&
+      needs.build_push_other.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check amd64 and arm64 manifests
+        shell: bash
+        env:
+          IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
+          SERVICES_CSV: ${{ needs.prepare.outputs.services_csv }}
+          IMAGE_OWNER: ${{ needs.prepare.outputs.image_owner }}
+        run: |
+          set -euo pipefail
+          image_owner="$IMAGE_OWNER"
+
+          for service in $SERVICES_CSV; do
+            case "$service" in
+              frontend) image="union-talk-frontend" ;;
+              gateway) image="union-talk-gateway" ;;
+              auth) image="union-talk-auth" ;;
+              user) image="union-talk-user" ;;
+              message) image="union-talk-message" ;;
+              file) image="union-talk-file" ;;
+              websocket) image="union-talk-websocket" ;;
+              agent) image="union-talk-agent" ;;
+              *) echo "Unsupported service: $service" >&2; exit 1 ;;
+            esac
+
+            image_ref="${REGISTRY}/${image_owner}/union-talk/${image}"
+            for tag in "$IMAGE_TAG" latest; do
+              echo "Checking ${image_ref}:${tag}"
+              manifest="$(docker buildx imagetools inspect "${image_ref}:${tag}")"
+              grep -q 'linux/amd64' <<<"$manifest" || { echo "Missing linux/amd64 for ${image_ref}:${tag}" >&2; exit 1; }
+              grep -q 'linux/arm64' <<<"$manifest" || { echo "Missing linux/arm64 for ${image_ref}:${tag}" >&2; exit 1; }
+            done
+          done
+
+  deploy:
+    name: Deploy production
+    needs: [prepare, verify_images]
+    if: needs.verify_images.result == 'success'
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+      DEPLOY_DIR: ${{ secrets.DEPLOY_DIR }}
+      GHCR_READ_USERNAME: ${{ secrets.GHCR_READ_USERNAME }}
+      GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
+      IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
+      SERVICES_CSV: ${{ needs.prepare.outputs.services_csv }}
+      IMAGE_OWNER: ${{ needs.prepare.outputs.image_owner }}
+    steps:
+      - name: Checkout deployment manifests
+        uses: actions/checkout@v4
+
+      - name: Validate required deployment settings
+        shell: bash
+        run: |
+          set -euo pipefail
+          : "${SSH_HOST:?SSH_HOST is required}"
+          : "${SSH_USER:?SSH_USER is required}"
+          : "${SSH_KNOWN_HOSTS:?SSH_KNOWN_HOSTS is required}"
+          : "${DEPLOY_DIR:?DEPLOY_DIR is required}"
+          : "${GHCR_READ_USERNAME:?GHCR_READ_USERNAME is required}"
+          : "${GHCR_READ_TOKEN:?GHCR_READ_TOKEN is required}"
+
+      - name: Configure SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add deployment host key
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+      - name: Validate deployment host
+        shell: bash
+        run: |
+          set -euo pipefail
+          remote_vars="$(printf 'DEPLOY_DIR=%q SERVICES_CSV=%q\n' "$DEPLOY_DIR" "$SERVICES_CSV")"
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "$remote_vars bash -s" <<'REMOTE_CHECK'
+          set -euo pipefail
+          mkdir -p "$DEPLOY_DIR"
+          test -f "$DEPLOY_DIR/.env"
+          docker version >/dev/null
+          docker compose version >/dev/null
+          docker network inspect union-talk >/dev/null
+          if [[ " $SERVICES_CSV " == *" agent "* ]]; then
+            test -f "$DEPLOY_DIR/agent.env"
+          fi
+          REMOTE_CHECK
+
+      - name: Log in to GHCR on the deployment host
+        shell: bash
+        run: |
+          set -euo pipefail
+          remote_username="$(printf '%q' "$GHCR_READ_USERNAME")"
+          printf '%s' "$GHCR_READ_TOKEN" | ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
+            "docker login ghcr.io --username $remote_username --password-stdin"
+
+      - name: Upload selected production Compose files
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for service in $SERVICES_CSV; do
+            case "$service" in
+              frontend)
+                source_file="union-talk-frontend/docker-compose.production.yaml"
+                target_file="docker-compose.frontend.yaml"
+                ;;
+              agent)
+                source_file="union-talk-agent/docker-compose.production.yaml"
+                target_file="docker-compose.agent.yaml"
+                ;;
+              gateway|auth|user|message|file|websocket)
+                source_file="union-talk-server/deploy/docker/docker-compose.${service}.yaml"
+                target_file="docker-compose.${service}.yaml"
+                ;;
+              *)
+                echo "Unsupported service: $service" >&2
+                exit 1
+                ;;
+            esac
+
+            test -f "$source_file"
+            scp -P "$SSH_PORT" "$source_file" "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/$target_file"
+          done
+
+      - name: Pull and restart selected services
+        shell: bash
+        run: |
+          set -euo pipefail
+          remote_vars="$(printf 'DEPLOY_DIR=%q IMAGE_TAG=%q SERVICES_CSV=%q IMAGE_OWNER=%q\n' \
+            "$DEPLOY_DIR" "$IMAGE_TAG" "$SERVICES_CSV" "$IMAGE_OWNER")"
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "$remote_vars bash -s" <<'REMOTE_SCRIPT'
+          set -euo pipefail
+          cd "$DEPLOY_DIR"
+          image_prefix="ghcr.io/${IMAGE_OWNER}/union-talk"
+
+          for service in $SERVICES_CSV; do
+            case "$service" in
+              frontend)
+                compose_file="docker-compose.frontend.yaml"
+                compose_env_file=".env"
+                export UNION_TALK_FRONTEND_IMAGE="$image_prefix/union-talk-frontend"
+                export UNION_TALK_FRONTEND_TAG="$IMAGE_TAG"
+                ;;
+              agent)
+                compose_file="docker-compose.agent.yaml"
+                compose_env_file="agent.env"
+                export UNION_TALK_AGENT_IMAGE="$image_prefix/union-talk-agent"
+                export UNION_TALK_AGENT_TAG="$IMAGE_TAG"
+                ;;
+              gateway|auth|user|message|file|websocket)
+                compose_file="docker-compose.${service}.yaml"
+                compose_env_file=".env"
+                export UNION_TALK_IMAGE_PREFIX="$image_prefix"
+                export UNION_TALK_IMAGE_TAG="$IMAGE_TAG"
+                ;;
+              *)
+                echo "Unsupported service: $service" >&2
+                exit 1
+                ;;
+            esac
+
+            test -f "$compose_file"
+            docker compose --env-file "$compose_env_file" -f "$compose_file" pull
+            docker compose --env-file "$compose_env_file" -f "$compose_file" up -d --force-recreate --no-build
+            docker compose --env-file "$compose_env_file" -f "$compose_file" ps
+          done
+          REMOTE_SCRIPT

@@ -1,0 +1,53 @@
+name: union-talk-gateway
+
+services:
+  union-talk-gateway:
+    image: ${UNION_TALK_IMAGE_PREFIX:?UNION_TALK_IMAGE_PREFIX is required}/union-talk-gateway:${UNION_TALK_IMAGE_TAG:?UNION_TALK_IMAGE_TAG is required}
+    pull_policy: always
+    container_name: union-talk-gateway
+    restart: unless-stopped
+    init: true
+    labels:
+      union-talk.dependencies.external: "nacos"
+      union-talk.dependencies.internal: "union-talk-auth,union-talk-user,union-talk-message,union-talk-file"
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      JAVA_OPTS: ${JAVA_OPTS:--Xms256m -Xmx512m -XX:+UseG1GC}
+      SERVER_PORT: "13000"
+      UNION_NACOS_HOST: ${UNION_NACOS_HOST:?UNION_NACOS_HOST is required}
+      UNION_NACOS_PORT: ${UNION_NACOS_PORT:-8848}
+      UNION_NACOS_NAMESPACE: ${UNION_NACOS_NAMESPACE:-union-talk}
+      UNION_NACOS_GROUP: ${UNION_NACOS_GROUP:-DEFAULT_GROUP}
+      UNION_NACOS_USERNAME: ${UNION_NACOS_USERNAME:?UNION_NACOS_USERNAME is required}
+      UNION_NACOS_PASSWORD: ${UNION_NACOS_PASSWORD:?UNION_NACOS_PASSWORD is required}
+      SPRING_CLOUD_NACOS_SERVER_ADDR: "${UNION_NACOS_HOST}:${UNION_NACOS_PORT:-8848}"
+      SPRING_CLOUD_NACOS_USERNAME: ${UNION_NACOS_USERNAME:?UNION_NACOS_USERNAME is required}
+      SPRING_CLOUD_NACOS_PASSWORD: ${UNION_NACOS_PASSWORD:?UNION_NACOS_PASSWORD is required}
+      SPRING_CLOUD_NACOS_CONFIG_NAMESPACE: ${UNION_NACOS_NAMESPACE:-union-talk}
+      SPRING_CLOUD_NACOS_CONFIG_GROUP: ${UNION_NACOS_GROUP:-DEFAULT_GROUP}
+      SPRING_CLOUD_NACOS_DISCOVERY_NAMESPACE: ${UNION_NACOS_NAMESPACE:-union-talk}
+      SPRING_CLOUD_NACOS_DISCOVERY_GROUP: ${UNION_NACOS_GROUP:-DEFAULT_GROUP}
+      UNION_LOG_PATH: /app/logs
+      UNION_LOG_ROOT_LEVEL: ${UNION_LOG_ROOT_LEVEL:-INFO}
+      UNION_LOG_APP_LEVEL: ${UNION_LOG_APP_LEVEL:-INFO}
+      UNION_LOG_SPRING_LEVEL: ${UNION_LOG_SPRING_LEVEL:-INFO}
+      UNION_LOG_MAX_FILE_SIZE: ${UNION_LOG_MAX_FILE_SIZE:-100MB}
+      UNION_LOG_MAX_HISTORY: ${UNION_LOG_MAX_HISTORY:-30}
+      UNION_LOG_TOTAL_SIZE_CAP: ${UNION_LOG_TOTAL_SIZE_CAP:-10GB}
+      UNION_LOG_CLEAN_HISTORY_ON_START: ${UNION_LOG_CLEAN_HISTORY_ON_START:-true}
+      UNION_LOG_ERROR_MAX_HISTORY: ${UNION_LOG_ERROR_MAX_HISTORY:-60}
+      UNION_LOG_ERROR_TOTAL_SIZE_CAP: ${UNION_LOG_ERROR_TOTAL_SIZE_CAP:-5GB}
+      UNION_LOG_ASYNC_QUEUE_SIZE: ${UNION_LOG_ASYNC_QUEUE_SIZE:-2048}
+      UNION_ID_GENERATOR_DATACENTER_ID: ${UNION_ID_GENERATOR_DATACENTER_ID:-1}
+      UNION_ID_GENERATOR_WORKER_ID: ${UNION_GATEWAY_WORKER_ID:-1}
+    ports:
+      - "${UNION_TALK_GATEWAY_HOST_PORT:-13000}:13000"
+    volumes:
+      - ./data/logs/gateway:/app/logs
+    networks:
+      - union-talk
+
+networks:
+  union-talk:
+    external: true
+    name: union-talk

@@ -134,6 +134,8 @@ flowchart LR
 │   ├── alembic/                  # Agent 控制面迁移
 │   ├── proto/                    # Agent 使用的 gRPC 生成契约
 │   └── tests/                    # 单元测试和契约测试
+├── .github/workflows/release-production.yml # Tag 生产发布与多架构镜像
+├── docs/production-release.md   # GHCR、Tag 和服务器配置
 ├── .gitignore
 └── README.md
 ```
@@ -251,7 +253,9 @@ Java 后端使用 Maven 多模块构建；涉及数据库、Nacos、Redis、Rabb
 
 ## 部署
 
-生产部署采用“构建机生成镜像，部署机只拉取镜像”的方式。六个后端应用的独立 Compose 文件位于 [`union-talk-server/deploy/docker/`](union-talk-server/deploy/docker/)，前端容器使用 Nginx 提供静态资源并代理 Gateway 和 WebSocket。
+生产部署采用“构建机生成镜像，部署机只拉取镜像”的方式。六个后端应用的独立 Compose 文件位于 [`union-talk-server/deploy/docker/`](union-talk-server/deploy/docker/)，前端生产清单位于 [`union-talk-frontend/docker-compose.production.yaml`](union-talk-frontend/docker-compose.production.yaml)，Agent 的生产进程编排位于 [`union-talk-agent/docker-compose.production.yaml`](union-talk-agent/docker-compose.production.yaml)。
+
+生产 Tag 发布、GHCR 镜像命名、按服务更新和 GitHub Environment 配置见 [`docs/production-release.md`](docs/production-release.md)。
 
 部署前至少完成以下准备：
 

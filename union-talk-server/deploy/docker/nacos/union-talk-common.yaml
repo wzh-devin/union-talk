@@ -1,0 +1,39 @@
+logging:
+  file:
+    path: ${UNION_LOG_PATH:logs}
+  level:
+    root: ${UNION_LOG_ROOT_LEVEL:INFO}
+    com.devin.uniontalk: ${UNION_LOG_APP_LEVEL:INFO}
+    org.springframework: ${UNION_LOG_SPRING_LEVEL:INFO}
+    org.hibernate: ${UNION_LOG_HIBERNATE_LEVEL:INFO}
+    com.zaxxer.hikari: ${UNION_LOG_HIKARI_LEVEL:INFO}
+  logback:
+    rollingpolicy:
+      max-file-size: ${UNION_LOG_MAX_FILE_SIZE:100MB}
+      max-history: ${UNION_LOG_MAX_HISTORY:30}
+      total-size-cap: ${UNION_LOG_TOTAL_SIZE_CAP:10GB}
+      clean-history-on-start: ${UNION_LOG_CLEAN_HISTORY_ON_START:true}
+
+union-talk:
+  logging:
+    error-max-history: ${UNION_LOG_ERROR_MAX_HISTORY:60}
+    error-total-size-cap: ${UNION_LOG_ERROR_TOTAL_SIZE_CAP:5GB}
+    async-queue-size: ${UNION_LOG_ASYNC_QUEUE_SIZE:2048}
+
+union:
+  crypto:
+    secret-key: ${UNION_CRYPTO_SECRET_KEY}
+  redis:
+    host: ${UNION_REDIS_HOST}
+    port: ${UNION_REDIS_PORT:6379}
+    password: ${UNION_REDIS_PASSWORD:}
+    database: ${UNION_REDIS_DATABASE:0}
+
+sa-token:
+  token-name: Authorization
+  timeout: 2592000
+  active-timeout: -1
+  is-concurrent: true
+  is-share: true
+  token-style: random-64
+  is-log: false

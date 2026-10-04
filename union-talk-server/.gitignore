@@ -54,3 +54,10 @@ CLAUDE.md
 
 ### deploy ###
 deploy
+!deploy/
+!deploy/**
+deploy/docker/data/
+deploy/**/.DS_Store
+deploy/**/.env
+deploy/**/.env.*
+!deploy/**/.env.example

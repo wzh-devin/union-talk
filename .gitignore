@@ -48,3 +48,6 @@ logs/
 .claude/
 **/.claude/
 
+# Devin project context (generated working knowledge)
+/.agents/skills/devin-project-context/
+/.devin-project-harness/

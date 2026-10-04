@@ -1,0 +1,20 @@
+server:
+  port: ${SERVER_PORT:13001}
+  servlet:
+    context-path: /api/v1
+
+union:
+  email:
+    host: ${UNION_EMAIL_HOST}
+    port: ${UNION_EMAIL_PORT:465}
+    username: ${UNION_EMAIL_USERNAME}
+    password: ${UNION_EMAIL_PASSWORD}
+    from: ${UNION_EMAIL_FROM}
+    protocol: ${UNION_EMAIL_PROTOCOL:smtps}
+    code-expire-seconds: ${UNION_EMAIL_CODE_EXPIRE:60}
+
+grpc:
+  client:
+    union-talk-user:
+      address: ${UNION_TALK_USER_GRPC_ADDRESS:discovery:///union-talk-user}
+      negotiation-type: plaintext
