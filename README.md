@@ -191,11 +191,14 @@ uv run alembic upgrade head
 # API
 uv run agent-api
 
-# 独立进程：按需分别启动
+# 本地需要分别调试时可独立启动；生产 Compose 使用统一单容器入口
 uv run answer-worker
 uv run reconciliation-worker
 uv run embedding-api
 uv run index-worker
+
+# 生产同等的统一入口
+uv run union-talk-agent
 ```
 
 Agent 的环境变量、Nacos 注册、SSE、Redis Key、Milvus Collection 和 OCR 前置依赖见 [`union-talk-agent/README.md`](union-talk-agent/README.md)。本机处理扫描 PDF 时还需要 Poppler、Tesseract 和 `chi_sim` 语言包。
@@ -253,7 +256,7 @@ Java 后端使用 Maven 多模块构建；涉及数据库、Nacos、Redis、Rabb
 
 ## 部署
 
-生产部署采用“构建机生成镜像，部署机只拉取镜像”的方式。六个后端应用的独立 Compose 文件位于 [`union-talk-server/deploy/docker/`](union-talk-server/deploy/docker/)，前端生产清单位于 [`union-talk-frontend/docker-compose.production.yaml`](union-talk-frontend/docker-compose.production.yaml)，Agent 的生产进程编排位于 [`union-talk-agent/docker-compose.production.yaml`](union-talk-agent/docker-compose.production.yaml)。
+生产部署采用“构建机生成镜像，部署机只拉取镜像”的方式。六个后端应用的独立 Compose 文件位于 [`union-talk-server/deploy/docker/`](union-talk-server/deploy/docker/)，前端生产清单位于 [`union-talk-frontend/docker-compose.production.yaml`](union-talk-frontend/docker-compose.production.yaml)，Agent 的单容器多进程生产编排位于 [`union-talk-agent/docker-compose.production.yaml`](union-talk-agent/docker-compose.production.yaml)。
 
 生产 Tag 发布、GHCR 镜像命名、按服务更新和 GitHub Environment 配置见 [`docs/production-release.md`](docs/production-release.md)。
 

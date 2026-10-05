@@ -24,6 +24,7 @@ Message Outbox ── RabbitMQ ── answer-worker ── LangGraph
 - 单个 Agent Run 使用 SSE；普通聊天和最终正式消息继续使用 WebSocket。
 - Message Service 是聊天消息和 Agent 正式回复的唯一写入口。
 - `agent-api` 注册 Nacos 临时实例；Worker 不注册 HTTP 服务。
+- 生产环境由单个 `union-talk-agent` 容器统一托管 API、Embedding 和启用的 Worker 进程。
 
 ## 当前实现状态
 
@@ -99,6 +100,12 @@ uv run python -c 'import base64,secrets; print(base64.urlsafe_b64encode(secrets.
 
 ```bash
 uv run agent-api
+```
+
+生产同等的单容器入口（本地也可用于联调）：
+
+```bash
+uv run union-talk-agent
 ```
 
 启动回答和对账 Worker：
@@ -225,7 +232,7 @@ ut:agent:run:{runId}:cancel
 
 默认 Embedding 为 BGE-M3 1024 维，索引使用 HNSW，距离使用 COSINE。`embedding-api`
 监听 `13008`，使用有界队列和短等待窗口合并并发编码请求；Answer/Index Worker 的
-`AGENT_EMBEDDING_API_BASE` 必须指向 `http://127.0.0.1:13008`。
+`AGENT_EMBEDDING_API_BASE` 在单容器生产运行时必须指向 `http://127.0.0.1:13008`。
 
 ## 数据库约束
 

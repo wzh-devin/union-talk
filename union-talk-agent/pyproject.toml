@@ -40,6 +40,7 @@ answer-worker = "union_talk_agent.bootstrap.answer_worker:main"
 embedding-api = "union_talk_agent.bootstrap.embedding_api:main"
 index-worker = "union_talk_agent.bootstrap.index_worker:main"
 reconciliation-worker = "union_talk_agent.bootstrap.reconciliation_worker:main"
+union-talk-agent = "union_talk_agent.bootstrap.multi_process:main"
 
 [dependency-groups]
 dev = [

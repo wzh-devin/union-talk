@@ -60,7 +60,7 @@ User、Message、File、Gateway 之间有接口和服务发现关系。涉及跨
 3. 使用 Docker Buildx + QEMU 为选中的服务构建 `linux/amd64,linux/arm64` 独立镜像，并推送版本、`latest` 和 SHA 标签到 GHCR。Java 镜像复用同一份 Maven 构建产物，前端和 Agent 使用各自的 Dockerfile。
 4. 检查所有目标镜像的两个平台 manifest。
 5. 通过 SSH 把选中的生产 Compose 文件同步到部署目录。
-6. 在服务器上执行 `docker compose pull` 和 `docker compose up -d --force-recreate --no-build`，只重启选中的 Compose 项目。
+6. 在服务器上执行 `docker compose pull` 和 `docker compose up -d --force-recreate --remove-orphans --no-build`，只重启选中的 Compose 项目并清理已删除的旧服务容器。
 7. 输出 Compose 状态；部署目录中的 `.env`、`agent.env` 和数据目录始终留在服务器，不进入 GitHub 仓库。
 
 主分支不触发生产 Action。后续如果需要主分支质量检查，可以增加独立的 CI workflow，但不要把它和生产部署绑定。
@@ -87,12 +87,12 @@ chmod 600 /opt/union-talk/.env /opt/union-talk/agent.env
 
 然后替换其中的示例地址、账号、密钥和模型配置。`.env` 中的 `UNION_TALK_IMAGE_TAG` 由 Action 通过环境变量覆盖，服务器保留的值只作为手工回滚默认值。
 
-Agent 使用独立的 Compose 项目，生产环境至少应把这些地址改为 Docker 网络内的服务名或实际内网地址：
+Agent 使用独立的单容器多进程 Compose 项目，生产环境至少应把 Embedding 地址设置为同一容器的回环地址：
 
 ```dotenv
 AGENT_GRPC_MESSAGE_TARGET=union-talk-message:19005
 AGENT_GRPC_FILE_TARGET=union-talk-file:19006
-AGENT_EMBEDDING_API_BASE=http://union-talk-agent-embedding:13008
+AGENT_EMBEDDING_API_BASE=http://127.0.0.1:13008
 ```
 
 Java 服务的 Nacos、PostgreSQL、Redis、RabbitMQ、Seata、MinIO 和 SMTP 配置继续放在 `.env` 与 Nacos 中，Compose 不会覆盖这些运行时配置。

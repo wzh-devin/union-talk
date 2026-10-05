@@ -1,52 +1,30 @@
 name: union-talk-agent
 
-x-agent-service: &agent-service
-  image: ${UNION_TALK_AGENT_IMAGE:?UNION_TALK_AGENT_IMAGE is required}:${UNION_TALK_AGENT_TAG:?UNION_TALK_AGENT_TAG is required}
-  pull_policy: always
-  restart: unless-stopped
-  init: true
-  env_file:
-    - agent.env
-  networks:
-    - union-talk
-
 services:
-  union-talk-agent-api:
-    <<: *agent-service
-    container_name: union-talk-agent-api
-    command: ["agent-api"]
+  union-talk-agent:
+    image: ${UNION_TALK_AGENT_IMAGE:?UNION_TALK_AGENT_IMAGE is required}:${UNION_TALK_AGENT_TAG:?UNION_TALK_AGENT_TAG is required}
+    container_name: union-talk-agent
+    pull_policy: always
+    restart: unless-stopped
+    init: true
+    command: ["union-talk-agent"]
+    env_file:
+      - agent.env
+    networks:
+      - union-talk
+    volumes:
+      - ./data/huggingface:/app/.cache/huggingface:rw
     ports:
       - "${UNION_TALK_AGENT_HOST_PORT:-13007}:${AGENT_API_PORT:-13007}"
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:${AGENT_API_PORT:-13007}/health/ready', timeout=3)"]
-      interval: 30s
-      timeout: 5s
-      start_period: 30s
-      retries: 5
-
-  union-talk-agent-answer-worker:
-    <<: *agent-service
-    container_name: union-talk-agent-answer-worker
-    command: ["answer-worker"]
-
-  union-talk-agent-index-worker:
-    <<: *agent-service
-    container_name: union-talk-agent-index-worker
-    command: ["index-worker"]
-
-  union-talk-agent-reconciliation-worker:
-    <<: *agent-service
-    container_name: union-talk-agent-reconciliation-worker
-    command: ["reconciliation-worker"]
-
-  union-talk-agent-embedding:
-    <<: *agent-service
-    container_name: union-talk-agent-embedding
-    command: ["embedding-api"]
     expose:
       - "${AGENT_EMBEDDING_PORT:-13008}"
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:${AGENT_EMBEDDING_PORT:-13008}/health', timeout=3)"]
+      test:
+        - CMD-SHELL
+        - >-
+          python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:${AGENT_API_PORT:-13007}/health/ready', timeout=3)"
+          &&
+          python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:${AGENT_EMBEDDING_PORT:-13008}/internal/v1/health', timeout=3)"
       interval: 30s
       timeout: 5s
       start_period: 60s

@@ -29,4 +29,4 @@ RUN groupadd --system agent \
     && chown agent:agent /app/logs /app/nacos
 USER agent
 
-CMD ["agent-api"]
+CMD ["union-talk-agent"]
