@@ -111,7 +111,8 @@ jobs:
             needs_java=true
           fi
 
-          echo "image_tag=$tag" >> "$GITHUB_OUTPUT"
+          # 服务前缀只用于选择发布范围，镜像使用不带服务前缀的语义版本 Tag。
+          echo "image_tag=$version_tag" >> "$GITHUB_OUTPUT"
           echo "services=$services_json" >> "$GITHUB_OUTPUT"
           echo "services_csv=$services_csv" >> "$GITHUB_OUTPUT"
           echo "needs_java=$needs_java" >> "$GITHUB_OUTPUT"

@@ -8,7 +8,7 @@
 
 当前镜像与 Compose 文件的对应关系如下：
 
-| 服务 | 镜像 | Compose 文件 | 服务 Tag |
+| 服务 | 镜像 | Compose 文件 | 选择服务的 Git Tag |
 | --- | --- | --- | --- |
 | 前端 | `union-talk-frontend` | `union-talk-frontend/docker-compose.production.yaml` | `frontend-v1.2.3` |
 | Gateway | `union-talk-gateway` | `union-talk-server/deploy/docker/docker-compose.gateway.yaml` | `gateway-v1.2.3` |
@@ -25,7 +25,7 @@
 ghcr.io/wzh-devin/union-talk/<image>:v1.2.3
 ```
 
-每个镜像还会带一个 `sha-<commit>` 标签和 `latest` 标签。生产 Compose 使用版本 Tag，不能使用 `latest`；`latest` 是给人工拉取和其他环境使用的可变别名。服务 Tag 会完整保留在镜像 Tag 中，例如 `gateway-v1.2.4`，避免与完整发布的 `v1.2.4` 发生覆盖。服务 Tag 只更新目标服务的 `latest`，不会改写其他服务。
+每个镜像还会带一个 `sha-<commit>` 标签和 `latest` 标签。生产 Compose 使用不带服务前缀的语义版本 Tag，不能使用 `latest`；`latest` 是给人工拉取和其他环境使用的可变别名。服务前缀只用于选择发布范围：例如 Git Tag `gateway-v1.2.4` 只发布 Gateway，但镜像使用 `:v1.2.4`，不会把 `gateway-` 写入镜像 Tag。服务 Tag 只更新目标服务的 `latest`，不会改写其他服务。
 
 Buildx 使用 QEMU 构建两个平台。工作流会在部署前执行 `docker buildx imagetools inspect`，只要版本 Tag 或 `latest` 缺少 `linux/amd64`、`linux/arm64` 任一平台，就不会进入生产部署。
 
@@ -47,7 +47,7 @@ git tag gateway-v1.2.4
 git push origin gateway-v1.2.4
 ```
 
-这只会构建 `union-talk-gateway:gateway-v1.2.4`，并只更新 Gateway 的 Compose 项目。其他服务继续使用服务器上原来的版本。
+这只会构建 `union-talk-gateway:v1.2.4`，并只更新 Gateway 的 Compose 项目。其他服务继续使用服务器上原来的版本。Agent 的 `agent-v1.0.1` 同理只发布 Agent，镜像为 `union-talk-agent:v1.0.1`。
 
 User、Message、File、Gateway 之间有接口和服务发现关系。涉及跨服务契约的修改使用完整 `vX.Y.Z` 发布；只有保持兼容的单服务修改才使用服务前缀 Tag。版本 Tag 创建后不复用，回滚使用之前保留的镜像版本。
 
@@ -121,7 +121,7 @@ Java 服务的 Nacos、PostgreSQL、Redis、RabbitMQ、Seata、MinIO 和 SMTP �
 ```bash
 cd /opt/union-talk
 export UNION_TALK_IMAGE_PREFIX=ghcr.io/wzh-devin/union-talk
-export UNION_TALK_IMAGE_TAG=gateway-v1.2.2
+export UNION_TALK_IMAGE_TAG=v1.2.2
 docker compose --env-file .env -f docker-compose.gateway.yaml pull
 docker compose --env-file .env -f docker-compose.gateway.yaml up -d --force-recreate
 ```
